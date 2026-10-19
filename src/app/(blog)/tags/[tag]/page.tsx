@@ -6,10 +6,19 @@ import PostCard from "@/components/front/blog/PostCard";
 import { notFound } from "next/navigation";
 
 export async function generateStaticParams() {
-  const posts = await getAllPosts();
-  const tags = extractTagsFromPosts(posts);
-  const uniq = new Set(tags.map(toTagSlug));
-  return [...uniq].map((s) => ({ tag: s }));
+  if (!process.env.DATABASE_URL) {
+    console.warn("DATABASE_URL is not set. Skipping generateStaticParams during build.");
+    return [];
+  }
+  try {
+    const posts = await getAllPosts();
+    const tags = extractTagsFromPosts(posts);
+    const uniq = new Set(tags.map(toTagSlug));
+    return [...uniq].map((s) => ({ tag: s }));
+  } catch (error) {
+    console.error("Failed to fetch tags in generateStaticParams:", error);
+    return [];
+  }
 }
 
 export default async function TagDetail({
