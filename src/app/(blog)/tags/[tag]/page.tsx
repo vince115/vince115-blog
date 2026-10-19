@@ -5,6 +5,9 @@ import Link from "next/link";
 import PostCard from "@/components/front/blog/PostCard";
 import { notFound } from "next/navigation";
 
+// 內容存在資料庫，靜態頁面每 60 秒重新產生一次，後台修改才會反映到線上
+export const revalidate = 60;
+
 export async function generateStaticParams() {
   if (!process.env.DATABASE_URL) {
     console.warn("DATABASE_URL is not set. Skipping generateStaticParams during build.");
