@@ -38,7 +38,7 @@ export default function Navbar() {
                 backdrop-blur-md"
         >
             <nav className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4 ">
-                <Link href="/" className="text-xl font-semibold text-gray-900 dark:text-white">
+                <Link href="/" className="text-xl font-semibold text-gray-900 dark:text-white whitespace-nowrap">
                     vince115 <span className="text-blue-600 dark:text-blue-400">Blog</span>
                 </Link>
 
