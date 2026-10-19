@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
-  const siteTitle = "devince-blog";
+  const siteTitle = "vince115 Blog";
   const siteDescription = "Vince 的技術筆記";
 
   const posts = await getAllPosts();

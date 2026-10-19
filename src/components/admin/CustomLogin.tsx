@@ -59,7 +59,7 @@ export const CustomLogin: React.FC = () => {
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-700 flex items-center justify-center shadow-lg shadow-violet-500/30 mb-4">
                 <span className="text-white text-2xl font-bold tracking-tight">V</span>
               </div>
-              <h1 className="text-white text-2xl font-semibold tracking-tight">devince Blog</h1>
+              <h1 className="text-white text-2xl font-semibold tracking-tight">vince115 Blog</h1>
               <p className="text-slate-400 text-sm mt-1">CMS 管理後台</p>
             </div>
 
@@ -145,7 +145,7 @@ export const CustomLogin: React.FC = () => {
           </div>
 
           <p className="text-center text-slate-600 text-xs mt-6">
-            © {new Date().getFullYear()} devince Blog · Powered by Payload CMS
+            © {new Date().getFullYear()} vince115 Blog · Powered by Payload CMS
           </p>
         </div>
       </div>

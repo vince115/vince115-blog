@@ -39,7 +39,7 @@ export default function Navbar() {
         >
             <nav className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4 ">
                 <Link href="/" className="text-xl font-semibold text-gray-900 dark:text-white">
-                    devince<span className="text-blue-600 dark:text-blue-400">Blog</span>
+                    vince115 <span className="text-blue-600 dark:text-blue-400">Blog</span>
                 </Link>
 
                 <div className="flex items-center gap-6">

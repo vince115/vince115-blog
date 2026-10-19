@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'),
-  title: "devince-blog",
+  title: "vince115 Blog",
   description: "Vince 的技術筆記",
   alternates: {
     types: {

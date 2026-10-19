@@ -19,7 +19,7 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     meta: {
-      titleSuffix: "- devince Blog CMS",
+      titleSuffix: "- vince115 Blog CMS",
     },
     importMap: {
       baseDir: path.resolve(dirname, "app/(payload)/admin"),

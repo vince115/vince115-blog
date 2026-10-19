@@ -2,7 +2,7 @@ import { Facebook } from "lucide-react";
 
 // src/config/site.ts
 export const site = {
-    title: "devinceBlog",
+    title: "vince115 Blog",
     author: "Vince Lo",
     description: "Vince 的技術筆記",
     since: 2025,
