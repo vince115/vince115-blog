@@ -1,6 +1,7 @@
 // src/app/projects/[slug]/page.tsx
-import { getProjectBySlug, getAllProjects } from "@/lib/payload-client";
+import { getProjectBySlug, getAllProjects, getPostsByProjectId } from "@/lib/payload-client";
 import Image from "next/image";
+import Link from "next/link";
 import MDXRemoteContent from "@/components/front/MDXRemoteContent";
 import { notFound } from "next/navigation";
 import type { Media } from "@/payload-types";
@@ -29,6 +30,8 @@ export default async function ProjectPage({
     const project = await getProjectBySlug(slug);
 
     if (!project) return notFound();
+
+    const relatedPosts = await getPostsByProjectId(project.id);
 
     const imageUrl =
         typeof project.cover === "object" && project.cover !== null
@@ -66,17 +69,61 @@ export default async function ProjectPage({
                     />
                 )}
 
-                {/* 外部專案連結 */}
-                {project.url && (
-                    <div className="pt-8 text-right">
-                        <a
-                            href={project.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-block text-pink-500 hover:underline font-medium"
-                        >
-                            Visit Project →
-                        </a>
+                {/* 外部專案連結 (Demo & GitHub) */}
+                {((project.url && !project.url.startsWith('/')) || project.externalUrl) && (
+                    <div className="pt-8 flex justify-end gap-6 items-center">
+                        {project.url && !project.url.startsWith('/') && (
+                            <a
+                                href={project.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-block text-pink-500 hover:underline font-medium"
+                            >
+                                Live Demo →
+                            </a>
+                        )}
+                        {project.externalUrl && (
+                            <a
+                                href={project.externalUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-block text-blue-500 hover:underline font-medium"
+                            >
+                                GitHub Source →
+                            </a>
+                        )}
+                    </div>
+                )}
+
+                {/* 相關部落格文章 / 開發日誌 */}
+                {relatedPosts && relatedPosts.length > 0 && (
+                    <div className="pt-12 mt-12 border-t border-gray-200 dark:border-zinc-700/50">
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                            🛠️ 本專案的相關開發日誌 / 文章
+                        </h3>
+                        <div className="grid gap-4">
+                            {relatedPosts.map((relatedPost) => (
+                                <Link
+                                    key={relatedPost.id}
+                                    href={`/blog/${relatedPost.slug}`}
+                                    className="group block p-5 rounded-xl border border-gray-300/50 dark:border-gray-800 hover:border-blue-400 dark:hover:border-blue-400 hover:bg-slate-50/50 dark:hover:bg-zinc-800/30 transition-all shadow-sm"
+                                >
+                                    <div className="flex justify-between items-start mb-2">
+                                        <h4 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-500 transition-colors">
+                                            {relatedPost.title}
+                                        </h4>
+                                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                                            {relatedPost.date ? new Date(relatedPost.date).toLocaleDateString("zh-TW") : ""}
+                                        </span>
+                                    </div>
+                                    {relatedPost.description && (
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                                            {relatedPost.description}
+                                        </p>
+                                    )}
+                                </Link>
+                            ))}
+                        </div>
                     </div>
                 )}
 

@@ -61,6 +61,23 @@ export async function getProjectBySlug(slug: string) {
   return result.docs[0] as Project | undefined;
 }
 
+export async function getPostsByProjectId(projectId: string) {
+  const payload = await getPayloadClient();
+  const result = await payload.find({
+    collection: "posts",
+    where: {
+      and: [
+        { status: { equals: "published" } },
+        { project: { equals: projectId } },
+      ],
+    },
+    sort: "-date",
+    limit: 100,
+    depth: 1,
+  });
+  return result.docs as Post[];
+}
+
 // ── Authors ─────────────────────────────────────────────
 
 export async function getAuthorBySlug(slug: string) {

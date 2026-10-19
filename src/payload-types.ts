@@ -145,6 +145,10 @@ export interface Post {
    */
   category: 'tech' | 'travel' | 'design' | 'project' | 'life';
   /**
+   * 若此文章屬於某個特定的專案作品展示，請在這裡選取
+   */
+  project?: (number | null) | Project;
+  /**
    * 輸入標籤後按 Enter 新增
    */
   tags?:
@@ -158,6 +162,30 @@ export interface Post {
    */
   cover?: (number | null) | Media;
   content: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects".
+ */
+export interface Project {
+  id: number;
+  title: string;
+  slug: string;
+  status: 'draft' | 'published';
+  date: string;
+  description?: string | null;
+  tags?:
+    | {
+        value?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  cover?: (number | null) | Media;
+  url?: string | null;
+  externalUrl?: string | null;
+  content?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -210,30 +238,6 @@ export interface Media {
       filename?: string | null;
     };
   };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "projects".
- */
-export interface Project {
-  id: number;
-  title: string;
-  slug: string;
-  status: 'draft' | 'published';
-  date: string;
-  description?: string | null;
-  tags?:
-    | {
-        value?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  cover?: (number | null) | Media;
-  url?: string | null;
-  externalUrl?: string | null;
-  content?: string | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -381,6 +385,7 @@ export interface PostsSelect<T extends boolean = true> {
   date?: T;
   description?: T;
   category?: T;
+  project?: T;
   tags?:
     | T
     | {

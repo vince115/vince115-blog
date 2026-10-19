@@ -51,15 +51,12 @@ export default function ProjectsClient({ projects }: { projects: any[] }) {
                             <h2 className="text-xl font-semibold mb-2">{project.title}</h2>
                             <p className="text-gray-400 mb-4">{project.description}</p>
 
-                            {project.url && (
                                 <Link
-                                    href={project.url}
-                                    rel="noopener noreferrer"
+                                    href={`/projects/${project.slug}`}
                                     className="text-pink-500 hover:underline"
                                 >
                                     Learn more →
                                 </Link>
-                            )}
                         </div>
                     );
                 })}

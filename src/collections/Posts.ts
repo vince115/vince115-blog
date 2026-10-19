@@ -106,6 +106,16 @@ export const Posts: CollectionConfig = {
       },
     },
     {
+      name: "project",
+      type: "relationship",
+      relationTo: "projects",
+      label: "關聯專案作品",
+      admin: {
+        position: "sidebar",
+        description: "若此文章屬於某個特定的專案作品展示，請在這裡選取",
+      },
+    },
+    {
       name: "tags",
       type: "array",
       label: "標籤",

@@ -101,12 +101,12 @@ export const Projects: CollectionConfig = {
     {
       name: "url",
       type: "text",
-      label: "Demo / Live URL",
+      label: "Demo 連結 (Live Demo URL)",
     },
     {
       name: "externalUrl",
       type: "text",
-      label: "外部連結（GitHub 等）",
+      label: "GitHub 專案原始碼連結",
     },
     {
       name: "content",
