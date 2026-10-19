@@ -44,7 +44,7 @@ export default buildConfig({
     outputFile: path.resolve(dirname, "payload-types.ts"),
   },
 
-  // Supabase PostgreSQL（Session mode，支援長連線）
+  // Neon PostgreSQL（使用 pooled 連線字串）
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URL || "",
@@ -55,29 +55,24 @@ export default buildConfig({
     },
   }),
 
-  // Supabase Storage（S3 相容）
+  // Cloudflare R2（S3 相容）
   plugins: [
     s3Storage({
       collections: {
         media: {
           prefix: "media",
-          generateFileURL: ({ filename }) => {
-            const bucket = process.env.SUPABASE_STORAGE_BUCKET || "blog-media";
-            const endpoint = process.env.SUPABASE_STORAGE_ENDPOINT || "";
-            // Supabase public URL 格式
-            return `${endpoint}/object/public/${bucket}/media/${filename}`;
-          },
+          generateFileURL: ({ filename }) =>
+            `${process.env.R2_PUBLIC_URL || ""}/media/${filename}`,
         },
       },
-      bucket: process.env.SUPABASE_STORAGE_BUCKET || "blog-media",
+      bucket: process.env.R2_BUCKET || "vince115-blog",
       config: {
         credentials: {
-          accessKeyId: process.env.SUPABASE_STORAGE_KEY || "",
-          secretAccessKey: process.env.SUPABASE_STORAGE_SECRET || "",
+          accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
+          secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
         },
-        region: process.env.SUPABASE_STORAGE_REGION || "ap-southeast-1",
-        endpoint: process.env.SUPABASE_S3_ENDPOINT || "",
-        forcePathStyle: true, // Supabase Storage 需要 path style
+        region: "auto",
+        endpoint: process.env.R2_ENDPOINT || "",
       },
     }),
   ],

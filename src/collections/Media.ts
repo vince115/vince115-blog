@@ -6,7 +6,7 @@ export const Media: CollectionConfig = {
     read: () => true,
   },
   upload: {
-    // 本機開發時的暫存目錄，生產環境使用 Supabase Storage
+    // 本機開發時的暫存目錄，生產環境使用 Cloudflare R2
     staticDir: "public/media",
     imageSizes: [
       {
