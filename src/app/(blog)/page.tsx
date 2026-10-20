@@ -11,7 +11,7 @@ export default function HomePage() {
 
       {/* 標題 */}
       <h1 className="text-5xl font-extrabold mb-4 text-gray-900 dark:text-gray-100">
-        <Hand className="inline-block w-10 h-10 mr-2 -mt-2 text-amber-500" aria-hidden /> 歡迎來到 <span className="text-blue-600 dark:text-blue-400">vince115 Blog</span>
+        <Hand className="inline-block w-10 h-10 mr-2 -mt-2 text-amber-500" aria-hidden /> 歡迎來到 vince115 <span className="text-blue-600 dark:text-blue-400">Blog</span>
       </h1>
 
       {/* 副標 */}
