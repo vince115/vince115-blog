@@ -47,8 +47,18 @@ export default function Footer() {
                     <p className="opacity-60 mt-1">{site.description}</p>
                 </div>
 
-                {/* 右：圖示、計數器與贊助 */}
-                <div className="flex flex-col items-center md:items-end gap-3">
+                {/* 右：由上而下為贊助、社群圖示、計數器 */}
+                <div className="flex flex-col items-center md:items-end gap-2">
+                    <a
+                        href="https://buymeacoffee.com/vince115"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-gray-300 dark:border-zinc-700 px-3 py-1 text-xs text-gray-500 dark:text-gray-400 hover:text-amber-600 hover:border-amber-500 dark:hover:text-amber-400 transition-colors"
+                    >
+                        <Coffee size={14} />
+                        Buy me a coffee
+                    </a>
+
                     <div className="flex justify-center md:justify-end gap-1 flex-wrap">
                         {icons.map(({ href, label, Icon }) => (
                             <Link
@@ -63,18 +73,7 @@ export default function Footer() {
                         ))}
                     </div>
 
-                    <div className="flex flex-col items-center md:items-end gap-2">
-                        <a
-                            href="https://buymeacoffee.com/vince115"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-full border border-gray-300 dark:border-zinc-700 px-3 py-1 text-xs text-gray-500 dark:text-gray-400 hover:text-amber-600 hover:border-amber-500 dark:hover:text-amber-400 transition-colors"
-                        >
-                            <Coffee size={14} />
-                            Buy me a coffee
-                        </a>
-                        <VisitorCounter />
-                    </div>
+                    <VisitorCounter />
                 </div>
             </div>
         </footer>
