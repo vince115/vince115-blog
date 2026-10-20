@@ -36,29 +36,30 @@ export default function Footer() {
 
     return (
         <footer className="mt-auto border-t border-gray-200 dark:border-zinc-800 bg-slate-200 dark:bg-slate-900/50">
-            {/* 手機版置中堆疊；桌機版左右分欄：左邊站名與版權，右邊圖示、計數器與贊助 */}
+            {/* 手機版置中堆疊；桌機版左右分欄：左邊站名、版權與贊助，右邊圖示與計數器 */}
             <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col-reverse md:flex-row md:items-center md:justify-between gap-5 text-center md:text-left text-sm text-gray-600 dark:text-gray-400">
-                {/* 左：站名與版權 */}
-                <div className="opacity-80">
-                    <p>
+                {/* 左：站名與版權，簡介旁放贊助按鈕 */}
+                <div>
+                    <p className="opacity-80">
                         {site.author} • © {site.since === year ? year : `${site.since}–${year}`} •{" "}
                         {site.title}
                     </p>
-                    <p className="opacity-60 mt-1">{site.description}</p>
+                    <div className="mt-1 flex flex-wrap items-center justify-center md:justify-start gap-x-3 gap-y-2">
+                        <p className="opacity-50">{site.description}</p>
+                        <a
+                            href="https://buymeacoffee.com/vince115"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 rounded-full border border-gray-300 dark:border-zinc-700 px-3 py-0.5 text-xs text-gray-500 dark:text-gray-400 hover:text-amber-600 hover:border-amber-500 dark:hover:text-amber-400 transition-colors"
+                        >
+                            <Coffee size={13} />
+                            Buy me a coffee
+                        </a>
+                    </div>
                 </div>
 
-                {/* 右：由上而下為贊助、社群圖示、計數器 */}
+                {/* 右：社群圖示與計數器 */}
                 <div className="flex flex-col items-center md:items-end gap-2">
-                    <a
-                        href="https://buymeacoffee.com/vince115"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-full border border-gray-300 dark:border-zinc-700 px-3 py-1 text-xs text-gray-500 dark:text-gray-400 hover:text-amber-600 hover:border-amber-500 dark:hover:text-amber-400 transition-colors"
-                    >
-                        <Coffee size={14} />
-                        Buy me a coffee
-                    </a>
-
                     <div className="flex justify-center md:justify-end gap-1 flex-wrap">
                         {icons.map(({ href, label, Icon }) => (
                             <Link
