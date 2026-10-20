@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import PostCard from "@/components/front/blog/PostCard";
 import Pagination from "@/components/front/Pagination";
 import BlogSidebar from "@/components/front/blog/BlogSidebar";
+import { categoryLabel } from "@/config/categories";
 
 import type { Post } from "@/payload-types";
 
@@ -14,14 +15,6 @@ export default function BlogClient({ posts }: { posts: Post[] }) {
     const selectedCategory = searchParams.get("category");
     const selectedTag = searchParams.get("tag");
     const page = pageParam ? parseInt(pageParam, 10) : 1;
-
-    const CATEGORY_MAP: Record<string, string> = {
-        tech: "💻 技術筆記",
-        travel: "✈️ 生活遊記",
-        design: "🎨 設計趨勢",
-        project: "🚀 專案開發",
-        life: "💡 隨筆雜談",
-    };
 
     // 過濾出符合分類與標籤的文章
     const filteredPosts = posts.filter((post) => {
@@ -48,7 +41,7 @@ export default function BlogClient({ posts }: { posts: Post[] }) {
                     <main className="flex-1">
                         {pagePosts.length === 0 ? (
                             <div className="py-12 text-center text-gray-500 dark:text-gray-400 bg-white dark:bg-[#111] rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm">
-                                找不到與「{selectedCategory ? (CATEGORY_MAP[selectedCategory] || selectedCategory) : ""}」相關的文章。
+                                找不到與「{selectedCategory ? categoryLabel(selectedCategory) : ""}」相關的文章。
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 gap-8">

@@ -3,6 +3,7 @@ import { getAllPosts, getPostBySlug } from "@/lib/payload-client";
 import MDXRemoteContent from "@/components/front/MDXRemoteContent";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { Wrench } from "lucide-react";
 import PostActions from "@/components/front/blog/PostActions";
 import PostNavigator from "@/components/front/blog/PostNavigator";
 import PostMessageBoard from "@/components/front/blog/PostMessageBoard";
@@ -103,7 +104,7 @@ export default async function BlogPost({
 
                                 {post.project && typeof post.project === "object" && (
                                     <div className="flex items-center gap-2 p-3 bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30 rounded-xl text-sm">
-                                        <span className="text-blue-500 font-semibold">🛠️ 實踐專案：</span>
+                                        <span className="inline-flex items-center gap-1.5 text-blue-500 font-semibold"><Wrench size={15} aria-hidden />實踐專案：</span>
                                         <Link
                                             href={`/projects/${(post.project as any).slug}`}
                                             className="text-blue-600 dark:text-blue-400 hover:underline font-medium"

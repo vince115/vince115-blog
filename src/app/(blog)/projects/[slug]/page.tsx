@@ -2,6 +2,7 @@
 import { getProjectBySlug, getAllProjects, getPostsByProjectId } from "@/lib/payload-client";
 import Image from "next/image";
 import Link from "next/link";
+import { Wrench } from "lucide-react";
 import MDXRemoteContent from "@/components/front/MDXRemoteContent";
 import { notFound } from "next/navigation";
 import type { Media } from "@/payload-types";
@@ -101,8 +102,9 @@ export default async function ProjectPage({
                 {/* 相關部落格文章 / 開發日誌 */}
                 {relatedPosts && relatedPosts.length > 0 && (
                     <div className="pt-12 mt-12 border-t border-gray-200 dark:border-zinc-700/50">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                            🛠️ 本專案的相關開發日誌 / 文章
+                        <h3 className="flex items-center gap-2 text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                            <Wrench className="w-6 h-6 text-blue-500" aria-hidden />
+                            本專案的相關開發日誌 / 文章
                         </h3>
                         <div className="grid gap-4">
                             {relatedPosts.map((relatedPost) => (

@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { X } from "lucide-react";
+import { ALL_POSTS_ICON as AllIcon, CATEGORIES } from "@/config/categories";
 
 interface Post {
     category?: string;
@@ -16,14 +18,6 @@ export default function BlogSidebar({
     selectedCategory?: string | null, 
     selectedTag?: string | null 
 }) {
-    const CATEGORY_MAP: Record<string, string> = {
-        tech: "💻 技術筆記",
-        travel: "✈️ 生活遊記",
-        design: "🎨 設計趨勢",
-        project: "🚀 專案開發",
-        life: "💡 隨筆雜談",
-    };
-
     // 取得所有不重複的「分類」並計算數量
     const categoriesCount: Record<string, number> = {};
     const tagsCount: Record<string, number> = {};
@@ -66,29 +60,34 @@ export default function BlogSidebar({
                     <li>
                         <Link
                             href="/blog"
-                            className={`block px-3 py-2 rounded-lg text-sm transition-colors ${
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
                                 !selectedCategory
                                     ? "bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 font-medium"
                                     : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5"
                             }`}
                         >
-                            全部文章 <span className="ml-1 opacity-50">({posts.length})</span>
+                            <AllIcon size={16} className="shrink-0" />
+                            全部文章 <span className="opacity-50">({posts.length})</span>
                         </Link>
                     </li>
-                    {availableCategories.map(([cat, count]) => (
+                    {availableCategories.map(([cat, count]) => {
+                        const Icon = CATEGORIES[cat]?.Icon;
+                        return (
                         <li key={cat}>
                             <Link
                                 href={`/blog?category=${encodeURIComponent(cat)}${selectedTag ? `&tag=${encodeURIComponent(selectedTag)}` : ""}`}
-                                className={`block px-3 py-2 rounded-lg text-sm transition-colors ${
+                                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
                                     selectedCategory === cat
                                         ? "bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 font-medium"
                                         : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5"
                                 }`}
                             >
-                                {CATEGORY_MAP[cat] || cat} <span className="ml-1 opacity-50">({count})</span>
+                                {Icon && <Icon size={16} className="shrink-0" />}
+                                {CATEGORIES[cat]?.label ?? cat} <span className="opacity-50">({count})</span>
                             </Link>
                         </li>
-                    ))}
+                        );
+                    })}
                 </ul>
 
                 {/* 標籤雲 (Top 30) */}
@@ -113,9 +112,10 @@ export default function BlogSidebar({
                         {selectedTag && (
                             <Link
                                 href={`/blog${selectedCategory ? `?category=${encodeURIComponent(selectedCategory)}` : ""}`}
-                                className="inline-block mt-3 text-xs text-gray-400 hover:text-teal-500 dark:hover:text-teal-400"
+                                className="inline-flex items-center gap-1 mt-3 text-xs text-gray-400 hover:text-teal-500 dark:hover:text-teal-400"
                             >
-                                ✕ 清除標籤篩選
+                                <X size={12} />
+                                清除標籤篩選
                             </Link>
                         )}
                     </div>

@@ -80,7 +80,14 @@ export default function PostActions({
 
              {/* ✅ 誠實的互動提示 */}
             <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                {liked ? "你覺得這篇文章有幫助 ❤️" : "覺得有幫助可以按個喜歡"}
+                {liked ? (
+                    <span className="inline-flex items-center gap-1">
+                        你覺得這篇文章有幫助
+                        <Heart size={14} className="fill-red-500 text-red-500" aria-hidden />
+                    </span>
+                ) : (
+                    "覺得有幫助可以按個喜歡"
+                )}
             </div>
         </div>
     );
