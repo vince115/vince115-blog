@@ -9,7 +9,11 @@
     "start": "next start",
     "lint": "eslint",
     "payload": "payload",
-    "migrate": "tsx scripts/migrate-mdx.ts"
+    "migrate": "tsx scripts/migrate-mdx.ts",
+    "content:post": "tsx scripts/content/create-draft.ts",
+    "content:project": "tsx scripts/content/create-project.ts",
+    "content:covers": "tsx scripts/content/set-project-covers.ts",
+    "content:media": "tsx scripts/content/upload-media.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.0.0",
