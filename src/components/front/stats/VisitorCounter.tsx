@@ -4,41 +4,23 @@
 import { useVisitorStats } from "./useVisitorStats";
 import { Users, Eye } from "lucide-react";
 
+// 放在 Footer：每一頁都會送出心跳，直接從文章頁進站的訪客也會被計入
 export default function VisitorCounter() {
     const { visitors, online } = useVisitorStats();
 
     return (
         <div
-            className="
-        pointer-events-none
-        px-4 py-3
-        text-sm
-        text-gray-600/80 dark:text-gray-200/80
-        space-y-1
-      "
+            className="flex items-center justify-center gap-4 text-xs text-gray-500 dark:text-gray-400 tabular-nums"
             aria-label="visitor statistics"
         >
-            {/* 線上人數 */}
-            <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-emerald-400" />
-                <span className="tabular-nums">
-                    Online&nbsp;
-                    <strong className="font-semibold text-emerald-300">
-                        {online}
-                    </strong>
-                </span>
-            </div>
-
-            {/* 到訪人數 */}
-            <div className="flex items-center gap-2">
-                <Eye className="w-4 h-4 text-red-800" />
-                <span className="tabular-nums">
-                    Visits&nbsp;
-                    <strong className="font-semibold text-red-700">
-                        {visitors.toLocaleString()}
-                    </strong>
-                </span>
-            </div>
+            <span className="flex items-center gap-1.5">
+                <Users className="w-3.5 h-3.5 text-emerald-500" />
+                Online <strong className="font-semibold text-gray-700 dark:text-gray-200">{online}</strong>
+            </span>
+            <span className="flex items-center gap-1.5">
+                <Eye className="w-3.5 h-3.5 text-rose-500" />
+                Visits <strong className="font-semibold text-gray-700 dark:text-gray-200">{visitors.toLocaleString()}</strong>
+            </span>
         </div>
     );
 }

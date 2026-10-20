@@ -1,7 +1,6 @@
 // src/app/page.tsx
 import Link from "next/link";
 import HeroBackgroundCanvas from "@/components/front/hero/HeroBackgroundCanvas";
-import VisitorCounter from "@/components/front/stats/VisitorCounter";
 
 export default function HomePage() {
   return (
@@ -34,11 +33,6 @@ export default function HomePage() {
         >
           關於本站
         </Link>
-      </div>
-
-      {/* Visitor Counter */}
-      <div className="fixed bottom-40 right-6 z-50 opacity-60">
-        <VisitorCounter />
       </div>
     </section>
   );

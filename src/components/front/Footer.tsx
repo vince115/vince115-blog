@@ -1,6 +1,7 @@
 // src/components/Footer.tsx
 import Link from "next/link";
 import { site } from "@/config/site";
+import VisitorCounter from "@/components/front/stats/VisitorCounter";
 import {
     Mail,
     Github,
@@ -13,6 +14,7 @@ import {
     PenLine,
     Pin,
     Shell,
+    Coffee,
 } from "lucide-react";
 
 const icons = [
@@ -48,6 +50,20 @@ export default function Footer() {
                             <Icon size={18} />
                         </Link>
                     ))}
+                </div>
+
+                {/* 訪客計數 + 贊助 */}
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6">
+                    <VisitorCounter />
+                    <a
+                        href="https://buymeacoffee.com/vince115"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-gray-300 dark:border-zinc-700 px-3 py-1 text-xs text-gray-500 dark:text-gray-400 hover:text-amber-600 hover:border-amber-500 dark:hover:text-amber-400 transition-colors"
+                    >
+                        <Coffee size={14} />
+                        Buy me a coffee
+                    </a>
                 </div>
 
                 {/* Divider + Text */}
