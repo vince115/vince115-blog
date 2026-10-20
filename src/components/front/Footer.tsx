@@ -63,8 +63,7 @@ export default function Footer() {
                         ))}
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
-                        <VisitorCounter />
+                    <div className="flex flex-col items-center md:items-end gap-2">
                         <a
                             href="https://buymeacoffee.com/vince115"
                             target="_blank"
@@ -74,6 +73,7 @@ export default function Footer() {
                             <Coffee size={14} />
                             Buy me a coffee
                         </a>
+                        <VisitorCounter />
                     </div>
                 </div>
             </div>
