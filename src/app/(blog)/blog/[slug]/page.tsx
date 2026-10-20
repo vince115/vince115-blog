@@ -81,14 +81,14 @@ export default async function BlogPost({
 
     return (
         <section className="py-12">
-            <div className="max-w-6xl mx-auto px-6">
+            <div className="max-w-6xl mx-auto px-0 sm:px-6">
                 <div className="flex flex-col md:flex-row gap-12">
-                    {/* 左側：分類標籤側邊欄 */}
-                    <BlogSidebar posts={posts} selectedCategory={(post as any).category as string} />
+                    {/* 左側：分類標籤側邊欄（手機版移到文章下方） */}
+                    <BlogSidebar className="order-2 md:order-1" posts={posts} selectedCategory={(post as any).category as string} />
 
                     {/* 右側：文章主要內容 */}
-                    <main className="flex-1 min-w-0">
-                        <div className="bg-white dark:bg-zinc-800/50 p-8 shadow-sm rounded-2xl border border-gray-100 dark:border-white/5">
+                    <main className="order-1 md:order-2 flex-1 min-w-0">
+                        <div className="bg-white dark:bg-zinc-800/50 p-5 sm:p-8 shadow-sm rounded-2xl border border-gray-100 dark:border-white/5">
                             <article className="space-y-6">
                                 <h1 className="text-3xl font-bold">{post.title}</h1>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">

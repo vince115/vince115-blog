@@ -8,9 +8,11 @@ interface Post {
 export default function BlogSidebar({ 
     posts, 
     selectedCategory, 
-    selectedTag 
+    selectedTag,
+    className = ""
 }: { 
     posts: Post[], 
+    className?: string,
     selectedCategory?: string | null, 
     selectedTag?: string | null 
 }) {
@@ -54,7 +56,7 @@ export default function BlogSidebar({
     }
 
     return (
-        <aside className="w-full md:w-64 flex-shrink-0">
+        <aside className={`w-full md:w-64 flex-shrink-0 ${className}`}>
             <div className="sticky top-24">
                 <h1 className="text-4xl font-bold mb-2 text-gray-900 dark:text-white">Blog</h1>
                 <p className="text-gray-500 dark:text-gray-400 mb-8">技術筆記與生活見聞</p>

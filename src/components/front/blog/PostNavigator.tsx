@@ -9,13 +9,13 @@ export default function PostNavigator({
     next: Post | null;
 }) {
     return (
-        <div className="mt-4 pt-6 border-t border-zinc-200 dark:border-zinc-800 flex justify-between items-center text-sm">
+        <div className="mt-4 pt-6 border-t border-zinc-200 dark:border-zinc-800 flex justify-between items-center gap-3 text-sm">
             {/* 上一篇 */}
-            <div className="flex-1 text-left">
+            <div className="flex-1 min-w-0 text-left">
                 {prev ? (
                     <Link
                         href={`/blog/${prev.slug}`}
-                        className="flex items-center gap-1 max-w-[260px] text-blue-600 dark:text-blue-400 hover:underline"
+                        className="flex items-center gap-1 max-w-full sm:max-w-[260px] text-blue-600 dark:text-blue-400 hover:underline"
                         title={prev.title}
                     >
                         <span>←</span>
@@ -39,11 +39,11 @@ export default function PostNavigator({
             </div>
 
             {/* 下一篇 */}
-            <div className="flex-1 text-right">
+            <div className="flex-1 min-w-0 text-right">
                 {next ? (
                     <Link
                         href={`/blog/${next.slug}`}
-                        className="flex justify-end items-center gap-1 max-w-[260px] ml-auto text-blue-600 dark:text-blue-400 hover:underline"
+                        className="flex justify-end items-center gap-1 max-w-full sm:max-w-[260px] ml-auto text-blue-600 dark:text-blue-400 hover:underline"
                         title={next.title}
                     >
                         <span className="truncate overflow-hidden whitespace-nowrap">

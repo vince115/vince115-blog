@@ -39,7 +39,7 @@ export default function BlogClient({ posts }: { posts: Post[] }) {
 
     return (
         <section className="py-12">
-            <div className="max-w-6xl mx-auto px-6">
+            <div className="max-w-6xl mx-auto px-0 sm:px-6">
                 <div className="flex flex-col md:flex-row gap-12">
                     {/* 左側：分類標籤區塊 (提取為共用元件) */}
                     <BlogSidebar posts={posts} selectedCategory={selectedCategory} selectedTag={selectedTag} />

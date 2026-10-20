@@ -12,7 +12,7 @@ export default async function TagsPage() {
 
     return (
         <section className="min-h-[60vh] py-12">
-            <div className="max-w-5xl mx-auto px-6">
+            <div className="max-w-5xl mx-auto px-0 sm:px-6">
                 <div className="flex items-start gap-6">
                     <h1 className="text-5xl font-extrabold">Tags</h1>
                     <div className="h-10 w-px mt-3 bg-gray-200 dark:bg-zinc-800" />

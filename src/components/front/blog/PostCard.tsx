@@ -11,14 +11,14 @@ export default function PostCard({ post }: { post: Post }) {
     return (
         <Link
             href={`/blog/${post.slug}`}
-            className="group flex flex-col md:flex-row justify-between items-center 
-        gap-6 rounded-2xl border border-zinc-300/50 dark:border-zinc-800
+            className="group flex flex-col md:flex-row justify-between md:items-stretch
+        md:gap-6 overflow-hidden rounded-2xl border border-zinc-300/50 dark:border-zinc-800
         bg-white dark:bg-zinc-700/50 shadow-sm 
         hover:border-blue-400/50 dark:hover:border-blue-600 
         transition-all duration-200"
         >
             {/* 文字區 */}
-            <div className="flex-1 space-y-2 p-4">
+            <div className="order-2 md:order-1 flex-1 min-w-0 space-y-2 p-4">
                 {/* 標題 */}
                 <h2
                     className="text-2xl font-semibold text-gray-900 dark:text-white 
@@ -62,16 +62,16 @@ export default function PostCard({ post }: { post: Post }) {
                 )}
             </div>
 
-            {/* 右邊：封面縮圖（固定寬度） */}
+            {/* 封面：手機版在上方滿版（16:9），桌機版在右側固定寬度 */}
             {coverUrl && (
                 <div
-                    className="relative w-48 h-full min-h-[120px] flex-shrink-0 border border-zinc-300/50 dark:border-zinc-800  rounded-r-2xl overflow-hidden shadow-sm"
+                    className="order-1 md:order-2 relative w-full aspect-video md:w-48 md:aspect-auto md:min-h-[120px] flex-shrink-0 overflow-hidden"
                 >
                     <Image
                         src={coverUrl}
                         alt={post.title}
                         fill
-                        sizes="160px"
+                        sizes="(min-width: 768px) 192px, 100vw"
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                 </div>

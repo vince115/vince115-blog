@@ -43,7 +43,7 @@ export default async function TagDetail({
 
   return (
     <section className="py-12">
-      <div className="max-w-5xl mx-auto px-6">
+      <div className="max-w-5xl mx-auto px-0 sm:px-6">
         <div className="mb-8">
           <Link
             href="/tags"

@@ -50,6 +50,29 @@ body {
     @apply text-gray-900 dark:text-white;
   }
   
+  /* 文章內的圖片與表格不超出螢幕寬度（行動裝置） */
+  .prose img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .prose .flex > img {
+    min-width: 0;
+    flex: 1 1 0%;
+  }
+
+  .prose table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  /* 表格第一欄（項目名稱）不換行，避免在手機上被擠成一字一行 */
+  .prose th:first-child,
+  .prose td:first-child {
+    white-space: nowrap;
+  }
+
   .prose pre {
     @apply rounded-xl border border-zinc-200 dark:border-zinc-800 my-8 shadow-sm overflow-x-auto p-4;
     background-color: #f2f2f2 !important;

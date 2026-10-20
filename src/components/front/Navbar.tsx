@@ -37,17 +37,18 @@ export default function Navbar() {
                 bg-zinc-50/50 dark:bg-slate-900/50
                 backdrop-blur-md"
         >
-            <nav className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4 ">
-                <Link href="/" className="text-xl font-semibold text-gray-900 dark:text-white whitespace-nowrap">
+            <nav className="max-w-6xl mx-auto flex items-center justify-between gap-3 px-4 sm:px-6 py-4">
+                <Link href="/" className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white whitespace-nowrap">
                     vince115 <span className="text-blue-600 dark:text-blue-400">Blog</span>
                 </Link>
 
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-3 sm:gap-6 text-sm sm:text-base">
                     {links.map(({ label, href }) => (
                         <Link
                             key={label}
                             href={href as any}
-                            className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                            // 手機版隱藏 Home（點左上角的站名就會回首頁），避免導覽列超出螢幕寬度
+                            className={`${label === "Home" ? "hidden sm:inline" : ""} text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors`}
                         >
                             {label}
                         </Link>
