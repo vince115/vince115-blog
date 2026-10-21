@@ -1,19 +1,9 @@
 // src/app/api/stats/route.ts
-import { Redis } from "@upstash/redis";
+import { redis, recordVisit, recordPageView } from "@/lib/analytics";
 
 export const runtime = "edge";
 
 const isDev = process.env.NODE_ENV !== "production";
-const hasKV =
-    !!process.env.KV_REST_API_URL && !!process.env.KV_REST_API_TOKEN;
-
-// 只有在「真的有 env」時才初始化 Redis
-const redis = hasKV
-    ? new Redis({
-        url: process.env.KV_REST_API_URL!,
-        token: process.env.KV_REST_API_TOKEN!,
-    })
-    : null;
 
 function getSessionId(req: Request) {
     const url = new URL(req.url);
@@ -42,13 +32,21 @@ export async function POST(req: Request) {
 
     // ===== Production logic =====
 
+    const url = new URL(req.url);
+    const path = url.searchParams.get("path");
+    const ref = url.searchParams.get("ref") || "";
+
     const seenKey = `seen:${sid}`;
     const seen = await redis.get<number>(seenKey);
 
     if (!seen) {
         await redis.set(seenKey, 1, { ex: 60 * 60 * 6 });
         await redis.incr("visits:total");
+        await recordVisit(redis, req, sid, ref);
     }
+
+    // 只有換頁時 client 才會帶 path，心跳不帶
+    if (path) await recordPageView(redis, path);
 
     await redis.set(`online:${sid}`, Date.now(), { ex: 45 });
 

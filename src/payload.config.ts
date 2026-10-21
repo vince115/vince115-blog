@@ -25,9 +25,14 @@ export default buildConfig({
       baseDir: path.resolve(dirname, "app/(payload)/admin"),
     },
     components: {
+      afterNavLinks: ["@/components/admin/AnalyticsNavLink#AnalyticsNavLink"],
       views: {
         login: {
           Component: "@/components/admin/CustomLogin#CustomLogin",
+        },
+        analytics: {
+          Component: "@/components/admin/AnalyticsView#AnalyticsView",
+          path: "/analytics",
         },
       },
     },

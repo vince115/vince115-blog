@@ -1,7 +1,8 @@
 // src/components/stats/useVisitorStats.ts
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 export type VisitorStats = {
     visitors: number;
@@ -44,32 +45,48 @@ export function useVisitorStats(options: Options = {}) {
         return getOrCreateSessionId();
     }, []);
 
+    const pathname = usePathname();
+    const stoppedRef = useRef(false);
+    const firstViewRef = useRef(true);
+
+    // 帶 path 的 ping 會被記為一次瀏覽；第一次另外帶上來源網址
+    async function ping(path?: string) {
+        if (!sid) return;
+        const params = new URLSearchParams({ sid });
+        if (path) params.set("path", path);
+        if (path && firstViewRef.current) {
+            firstViewRef.current = false;
+            if (document.referrer) params.set("ref", document.referrer);
+        }
+        try {
+            const res = await fetch(`/api/stats?${params}`, {
+                method: "POST",
+                cache: "no-store",
+            });
+            if (!res.ok) return;
+            const data = (await res.json()) as VisitorStats;
+            if (!stoppedRef.current) setStats(data);
+        } catch {
+            // ignore
+        }
+    }
+
+    // 換頁：記一次瀏覽
+    useEffect(() => {
+        if (sid && pathname) ping(pathname);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [sid, pathname]);
+
+    // 心跳：維持線上人數
     useEffect(() => {
         if (!sid) return;
-
-        let stopped = false;
-
-        async function ping() {
-            try {
-                const res = await fetch(`/api/stats?sid=${encodeURIComponent(sid)}`, {
-                    method: "POST",
-                    cache: "no-store",
-                });
-                if (!res.ok) return;
-                const data = (await res.json()) as VisitorStats;
-                if (!stopped) setStats(data);
-            } catch {
-                // ignore
-            }
-        }
-
-        ping();
-        const timer = setInterval(ping, heartbeatInterval);
-
+        stoppedRef.current = false;
+        const timer = setInterval(() => ping(), heartbeatInterval);
         return () => {
-            stopped = true;
+            stoppedRef.current = true;
             clearInterval(timer);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sid, heartbeatInterval]);
 
     return stats;
