@@ -12,8 +12,10 @@ const RANGES = [7, 30, 90];
 const card =
     "rounded-lg border border-[var(--theme-elevation-150)] bg-[var(--theme-elevation-50)] p-4";
 
-function formatDuration(ms: number) {
+function formatDuration(ms: number | null | undefined) {
+    if (ms == null) return "—";
     const sec = Math.round(ms / 1000);
+    if (sec < 1) return "< 1 秒";
     if (sec < 60) return `${sec} 秒`;
     const min = Math.floor(sec / 60);
     return `${min} 分 ${String(sec % 60).padStart(2, "0")} 秒`;
@@ -92,7 +94,7 @@ function RankList({ title, items, empty = "尚無資料" }: { title: string; ite
                             />
                             <span className="relative truncate" title={i.name}>{i.name}</span>
                             <span className="relative shrink-0 tabular-nums opacity-80">
-                                {i.avgMs !== undefined && (
+                                {"avgMs" in i && (
                                     <span className="mr-3 opacity-70">{formatDuration(i.avgMs)}</span>
                                 )}
                                 {i.count.toLocaleString()}

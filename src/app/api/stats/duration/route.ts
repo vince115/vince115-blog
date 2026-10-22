@@ -10,11 +10,15 @@ export async function POST(req: Request) {
     if (isDev || !redis) return new Response(null, { status: 204 });
 
     try {
-        const { path, ms } = (await req.json()) as { path?: unknown; ms?: unknown };
+        const { path, ms, first } = (await req.json()) as {
+            path?: unknown;
+            ms?: unknown;
+            first?: unknown;
+        };
         if (typeof path !== "string" || !path.startsWith("/") || typeof ms !== "number") {
             return new Response(null, { status: 400 });
         }
-        await recordDuration(redis, path, ms);
+        await recordDuration(redis, path, ms, first === true);
     } catch {
         return new Response(null, { status: 400 });
     }

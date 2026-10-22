@@ -53,6 +53,7 @@ export function useVisitorStats(options: Options = {}) {
     const currentPathRef = useRef<string | null>(null);
     const activeSinceRef = useRef<number | null>(null);
     const activeMsRef = useRef(0);
+    const reportedRef = useRef(false);
 
     function flushDuration() {
         const path = currentPathRef.current;
@@ -65,7 +66,8 @@ export function useVisitorStats(options: Options = {}) {
         activeMsRef.current = 0;
         if (ms < 1000) return;
 
-        const body = JSON.stringify({ path, ms });
+        const body = JSON.stringify({ path, ms, first: !reportedRef.current });
+        reportedRef.current = true;
         if (navigator.sendBeacon) {
             navigator.sendBeacon("/api/stats/duration", new Blob([body], { type: "application/json" }));
         } else {
@@ -101,6 +103,7 @@ export function useVisitorStats(options: Options = {}) {
         flushDuration();
         currentPathRef.current = pathname;
         activeMsRef.current = 0;
+        reportedRef.current = false;
         activeSinceRef.current = document.visibilityState === "visible" ? Date.now() : null;
         ping(pathname);
         // eslint-disable-next-line react-hooks/exhaustive-deps

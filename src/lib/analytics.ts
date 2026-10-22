@@ -38,6 +38,8 @@ const k = {
     browser: (d: string) => `a:browser:${d}`,
     dur: (d: string) => `a:dur:${d}`,
     durTotal: (d: string) => `a:durtotal:${d}`,
+    durViews: (d: string) => `a:durn:${d}`,
+    durViewsTotal: (d: string) => `a:durcount:${d}`,
 };
 
 // 單次回報上限：分頁開著忘了關不該拉高平均
@@ -107,30 +109,37 @@ export async function recordPageView(r: Redis, path: string) {
     await p.exec();
 }
 
-// 頁面在前景的停留時間（毫秒）；同一次瀏覽可能分多次回報，平均值 = 總時間 ÷ 瀏覽數
-export async function recordDuration(r: Redis, path: string, ms: number) {
+// 頁面在前景的停留時間（毫秒）；同一次瀏覽可能分多次回報，first 標記該次瀏覽的第一筆
+// 平均值 = 總時間 ÷ 有回報時間的瀏覽數（沒回報的瀏覽不拉低平均）
+export async function recordDuration(r: Redis, path: string, ms: number, first: boolean) {
     const d = dayKey();
+    const clean = cleanPath(path);
     const value = Math.round(Math.min(Math.max(ms, 0), MAX_DURATION_MS));
     if (!value) return;
     const p = r.pipeline();
-    p.hincrby(k.dur(d), cleanPath(path), value);
+    p.hincrby(k.dur(d), clean, value);
     p.incrby(k.durTotal(d), value);
-    p.expire(k.dur(d), TTL);
-    p.expire(k.durTotal(d), TTL);
+    if (first) {
+        p.hincrby(k.durViews(d), clean, 1);
+        p.incr(k.durViewsTotal(d));
+    }
+    for (const key of [k.dur(d), k.durTotal(d), k.durViews(d), k.durViewsTotal(d)]) {
+        p.expire(key, TTL);
+    }
     await p.exec();
 }
 
-export type Ranked = { name: string; count: number; avgMs?: number }[];
+export type Ranked = { name: string; count: number; avgMs?: number | null }[];
 
 export type AnalyticsSummary = {
-    days: { date: string; pv: number; visits: number; uv: number; avgMs: number }[];
+    days: { date: string; pv: number; visits: number; uv: number; avgMs: number | null }[];
     totals: {
         pv: number;
         visits: number;
         uv: number;
         allTimeVisits: number;
         online: number;
-        avgMs: number;
+        avgMs: number | null;
     };
     pages: Ranked;
     referrers: Ranked;
@@ -138,6 +147,10 @@ export type AnalyticsSummary = {
     devices: Ranked;
     browsers: Ranked;
 };
+
+function average(total: number, count: number) {
+    return count ? total / count : null;
+}
 
 function toRanked(map: Map<string, number>, limit = 20): Ranked {
     return [...map.entries()]
@@ -157,6 +170,8 @@ export async function getAnalytics(r: Redis, range: number): Promise<AnalyticsSu
         p.pfcount(k.uv(d));
         p.get(k.durTotal(d));
         p.hgetall(k.dur(d));
+        p.get(k.durViewsTotal(d));
+        p.hgetall(k.durViews(d));
     }
     for (const d of dates) {
         for (const z of zsets) p.zrange(k[z](d), 0, 99, { rev: true, withScores: true });
@@ -168,16 +183,21 @@ export async function getAnalytics(r: Redis, range: number): Promise<AnalyticsSu
 
     let i = 0;
     const durByPath = new Map<string, number>();
+    const durViewsByPath = new Map<string, number>();
+    const addHash = (map: Map<string, number>, hash: unknown) => {
+        for (const [path, n] of Object.entries((hash as Record<string, unknown> | null) ?? {})) {
+            map.set(path, (map.get(path) ?? 0) + Number(n));
+        }
+    };
     const days = dates.map((date) => {
         const pv = Number(res[i++] ?? 0);
         const visits = Number(res[i++] ?? 0);
         const uv = Number(res[i++] ?? 0);
         const durTotal = Number(res[i++] ?? 0);
-        const durHash = (res[i++] as Record<string, unknown> | null) ?? {};
-        for (const [path, ms] of Object.entries(durHash)) {
-            durByPath.set(path, (durByPath.get(path) ?? 0) + Number(ms));
-        }
-        return { date, pv, visits, uv, durTotal, avgMs: pv ? durTotal / pv : 0 };
+        addHash(durByPath, res[i++]);
+        const durViews = Number(res[i++] ?? 0);
+        addHash(durViewsByPath, res[i++]);
+        return { date, pv, visits, uv, durTotal, durViews, avgMs: average(durTotal, durViews) };
     });
 
     const maps = Object.fromEntries(zsets.map((z) => [z, new Map<string, number>()])) as Record<
@@ -202,20 +222,21 @@ export async function getAnalytics(r: Redis, range: number): Promise<AnalyticsSu
 
     const pv = days.reduce((s, d) => s + d.pv, 0);
     const durTotal = days.reduce((s, d) => s + d.durTotal, 0);
+    const durViews = days.reduce((s, d) => s + d.durViews, 0);
     const pages = toRanked(maps.pages).map((p) => ({
         ...p,
-        avgMs: (durByPath.get(p.name) ?? 0) / p.count,
+        avgMs: average(durByPath.get(p.name) ?? 0, durViewsByPath.get(p.name) ?? 0),
     }));
 
     return {
-        days: days.map(({ durTotal: _, ...d }) => d),
+        days: days.map(({ durTotal: _t, durViews: _v, ...d }) => d),
         totals: {
             pv,
             visits: days.reduce((s, d) => s + d.visits, 0),
             uv: uvTotal,
             allTimeVisits,
             online,
-            avgMs: pv ? durTotal / pv : 0,
+            avgMs: average(durTotal, durViews),
         },
         pages,
         referrers: toRanked(maps.ref),
