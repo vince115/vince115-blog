@@ -12,17 +12,28 @@ const RANGES = [7, 30, 90];
 const card =
     "rounded-lg border border-[var(--theme-elevation-150)] bg-[var(--theme-elevation-50)] p-4";
 
-function StatTile({ label, value }: { label: string; value: number }) {
+function formatDuration(ms: number) {
+    const sec = Math.round(ms / 1000);
+    if (sec < 60) return `${sec} 秒`;
+    const min = Math.floor(sec / 60);
+    return `${min} 分 ${String(sec % 60).padStart(2, "0")} 秒`;
+}
+
+function StatTile({ label, value }: { label: string; value: number | string }) {
     return (
         <div className={card}>
             <div className="text-xs uppercase tracking-wide opacity-60">{label}</div>
-            <div className="mt-1 text-2xl font-semibold tabular-nums">{value.toLocaleString()}</div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums">
+                {typeof value === "number" ? value.toLocaleString() : value}
+            </div>
         </div>
     );
 }
 
 function DailyChart({ days }: { days: AnalyticsSummary["days"] }) {
-    const max = Math.max(1, ...days.map((d) => d.pv));
+    // 兩個數列共用同一個刻度（部署前快取的舊版前端只算造訪不算瀏覽，UV 可能大於 PV）
+    const max = Math.max(1, ...days.map((d) => Math.max(d.pv, d.uv)));
+    const pct = (n: number) => `${Math.min(100, (n / max) * 100)}%`;
     return (
         <div className={card}>
             <div className="mb-3 flex items-center justify-between">
@@ -38,20 +49,20 @@ function DailyChart({ days }: { days: AnalyticsSummary["days"] }) {
                     </span>
                 </div>
             </div>
-            <div className="flex h-48 items-end gap-[2px]">
+            <div className="flex h-48 items-end gap-[2px] overflow-hidden">
                 {days.map((d) => (
                     <div
                         key={d.date}
                         className="relative flex h-full flex-1 items-end"
-                        title={`${d.date}\n瀏覽 ${d.pv}・造訪 ${d.visits}・訪客 ${d.uv}`}
+                        title={`${d.date}\n瀏覽 ${d.pv}・造訪 ${d.visits}・訪客 ${d.uv}・平均停留 ${formatDuration(d.avgMs)}`}
                     >
                         <div
                             className="w-full rounded-t-sm bg-blue-300 dark:bg-blue-900"
-                            style={{ height: `${(d.pv / max) * 100}%` }}
+                            style={{ height: pct(d.pv) }}
                         />
                         <div
                             className="absolute bottom-0 left-1/4 w-1/2 rounded-t-sm bg-blue-600 dark:bg-blue-400"
-                            style={{ height: `${(d.uv / max) * 100}%` }}
+                            style={{ height: pct(d.uv) }}
                         />
                     </div>
                 ))}
@@ -80,7 +91,12 @@ function RankList({ title, items, empty = "尚無資料" }: { title: string; ite
                                 style={{ width: `${(i.count / max) * 100}%` }}
                             />
                             <span className="relative truncate" title={i.name}>{i.name}</span>
-                            <span className="relative tabular-nums opacity-80">{i.count.toLocaleString()}</span>
+                            <span className="relative shrink-0 tabular-nums opacity-80">
+                                {i.avgMs !== undefined && (
+                                    <span className="mr-3 opacity-70">{formatDuration(i.avgMs)}</span>
+                                )}
+                                {i.count.toLocaleString()}
+                            </span>
                         </li>
                     ))}
                 </ul>
@@ -134,18 +150,19 @@ export async function AnalyticsView({ initPageResult, params, searchParams }: Ad
                     </div>
                 ) : (
                     <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+                        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
                             <StatTile label="目前線上" value={data.totals.online} />
                             <StatTile label={`瀏覽數（${range} 天）`} value={data.totals.pv} />
                             <StatTile label={`造訪次數（${range} 天）`} value={data.totals.visits} />
                             <StatTile label={`不重複訪客（${range} 天）`} value={data.totals.uv} />
+                            <StatTile label="平均停留時間" value={formatDuration(data.totals.avgMs)} />
                             <StatTile label="累計造訪" value={data.totals.allTimeVisits} />
                         </div>
 
                         <DailyChart days={data.days} />
 
                         <div className="grid gap-4 lg:grid-cols-2">
-                            <RankList title="熱門頁面" items={data.pages} />
+                            <RankList title="熱門頁面（平均停留・瀏覽數）" items={data.pages} />
                             <RankList title="來源網站" items={data.referrers} />
                         </div>
                         <div className="grid gap-4 lg:grid-cols-3">
@@ -154,7 +171,7 @@ export async function AnalyticsView({ initPageResult, params, searchParams }: Ad
                             <RankList title="瀏覽器" items={data.browsers} />
                         </div>
                         <p className="text-xs opacity-60">
-                            同一位訪客 6 小時內只算一次造訪；每日數據保留 120 天，以台北時間切日。
+                            同一位訪客 6 小時內只算一次造訪；停留時間只計算分頁在前景的時間，單次上限 30 分鐘；每日數據保留 120 天，以台北時間切日。
                         </p>
                     </div>
                 )}

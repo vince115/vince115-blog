@@ -49,6 +49,30 @@ export function useVisitorStats(options: Options = {}) {
     const stoppedRef = useRef(false);
     const firstViewRef = useRef(true);
 
+    // 停留時間：只計算分頁在前景的時間
+    const currentPathRef = useRef<string | null>(null);
+    const activeSinceRef = useRef<number | null>(null);
+    const activeMsRef = useRef(0);
+
+    function flushDuration() {
+        const path = currentPathRef.current;
+        if (!path) return;
+        if (activeSinceRef.current !== null) {
+            activeMsRef.current += Date.now() - activeSinceRef.current;
+            activeSinceRef.current = document.visibilityState === "visible" ? Date.now() : null;
+        }
+        const ms = Math.round(activeMsRef.current);
+        activeMsRef.current = 0;
+        if (ms < 1000) return;
+
+        const body = JSON.stringify({ path, ms });
+        if (navigator.sendBeacon) {
+            navigator.sendBeacon("/api/stats/duration", new Blob([body], { type: "application/json" }));
+        } else {
+            fetch("/api/stats/duration", { method: "POST", body, keepalive: true }).catch(() => {});
+        }
+    }
+
     // 帶 path 的 ping 會被記為一次瀏覽；第一次另外帶上來源網址
     async function ping(path?: string) {
         if (!sid) return;
@@ -71,11 +95,31 @@ export function useVisitorStats(options: Options = {}) {
         }
     }
 
-    // 換頁：記一次瀏覽
+    // 換頁：先送出上一頁的停留時間，再記一次瀏覽
     useEffect(() => {
-        if (sid && pathname) ping(pathname);
+        if (!sid || !pathname) return;
+        flushDuration();
+        currentPathRef.current = pathname;
+        activeMsRef.current = 0;
+        activeSinceRef.current = document.visibilityState === "visible" ? Date.now() : null;
+        ping(pathname);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sid, pathname]);
+
+    // 切到背景或離開頁面時送出停留時間（手機上常常不會觸發 pagehide）
+    useEffect(() => {
+        function onVisibilityChange() {
+            if (document.visibilityState === "hidden") flushDuration();
+            else activeSinceRef.current = Date.now();
+        }
+        document.addEventListener("visibilitychange", onVisibilityChange);
+        window.addEventListener("pagehide", flushDuration);
+        return () => {
+            document.removeEventListener("visibilitychange", onVisibilityChange);
+            window.removeEventListener("pagehide", flushDuration);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // 心跳：維持線上人數
     useEffect(() => {

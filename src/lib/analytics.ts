@@ -36,7 +36,12 @@ const k = {
     country: (d: string) => `a:country:${d}`,
     device: (d: string) => `a:device:${d}`,
     browser: (d: string) => `a:browser:${d}`,
+    dur: (d: string) => `a:dur:${d}`,
+    durTotal: (d: string) => `a:durtotal:${d}`,
 };
+
+// 單次回報上限：分頁開著忘了關不該拉高平均
+const MAX_DURATION_MS = 30 * 60 * 1000;
 
 function parseDevice(ua: string) {
     if (/bot|crawl|spider|slurp|preview/i.test(ua)) return "Bot";
@@ -86,10 +91,14 @@ export async function recordVisit(r: Redis, req: Request, sid: string, ref: stri
     await p.exec();
 }
 
+function cleanPath(path: string) {
+    return path.split(/[?#]/)[0].slice(0, 200) || "/";
+}
+
 // 每次換頁算一次瀏覽
 export async function recordPageView(r: Redis, path: string) {
     const d = dayKey();
-    const clean = path.split(/[?#]/)[0].slice(0, 200) || "/";
+    const clean = cleanPath(path);
     const p = r.pipeline();
     p.incr(k.pv(d));
     p.zincrby(k.pages(d), 1, clean);
@@ -98,11 +107,31 @@ export async function recordPageView(r: Redis, path: string) {
     await p.exec();
 }
 
-export type Ranked = { name: string; count: number }[];
+// 頁面在前景的停留時間（毫秒）；同一次瀏覽可能分多次回報，平均值 = 總時間 ÷ 瀏覽數
+export async function recordDuration(r: Redis, path: string, ms: number) {
+    const d = dayKey();
+    const value = Math.round(Math.min(Math.max(ms, 0), MAX_DURATION_MS));
+    if (!value) return;
+    const p = r.pipeline();
+    p.hincrby(k.dur(d), cleanPath(path), value);
+    p.incrby(k.durTotal(d), value);
+    p.expire(k.dur(d), TTL);
+    p.expire(k.durTotal(d), TTL);
+    await p.exec();
+}
+
+export type Ranked = { name: string; count: number; avgMs?: number }[];
 
 export type AnalyticsSummary = {
-    days: { date: string; pv: number; visits: number; uv: number }[];
-    totals: { pv: number; visits: number; uv: number; allTimeVisits: number; online: number };
+    days: { date: string; pv: number; visits: number; uv: number; avgMs: number }[];
+    totals: {
+        pv: number;
+        visits: number;
+        uv: number;
+        allTimeVisits: number;
+        online: number;
+        avgMs: number;
+    };
     pages: Ranked;
     referrers: Ranked;
     countries: Ranked;
@@ -126,6 +155,8 @@ export async function getAnalytics(r: Redis, range: number): Promise<AnalyticsSu
         p.get(k.pv(d));
         p.get(k.visits(d));
         p.pfcount(k.uv(d));
+        p.get(k.durTotal(d));
+        p.hgetall(k.dur(d));
     }
     for (const d of dates) {
         for (const z of zsets) p.zrange(k[z](d), 0, 99, { rev: true, withScores: true });
@@ -136,12 +167,18 @@ export async function getAnalytics(r: Redis, range: number): Promise<AnalyticsSu
     const res = (await p.exec()) as unknown[];
 
     let i = 0;
-    const days = dates.map((date) => ({
-        date,
-        pv: Number(res[i++] ?? 0),
-        visits: Number(res[i++] ?? 0),
-        uv: Number(res[i++] ?? 0),
-    }));
+    const durByPath = new Map<string, number>();
+    const days = dates.map((date) => {
+        const pv = Number(res[i++] ?? 0);
+        const visits = Number(res[i++] ?? 0);
+        const uv = Number(res[i++] ?? 0);
+        const durTotal = Number(res[i++] ?? 0);
+        const durHash = (res[i++] as Record<string, unknown> | null) ?? {};
+        for (const [path, ms] of Object.entries(durHash)) {
+            durByPath.set(path, (durByPath.get(path) ?? 0) + Number(ms));
+        }
+        return { date, pv, visits, uv, durTotal, avgMs: pv ? durTotal / pv : 0 };
+    });
 
     const maps = Object.fromEntries(zsets.map((z) => [z, new Map<string, number>()])) as Record<
         (typeof zsets)[number],
@@ -163,16 +200,24 @@ export async function getAnalytics(r: Redis, range: number): Promise<AnalyticsSu
     // 線上人數沿用 /api/stats 的 online:* key
     const online = (await r.keys("online:*")).length;
 
+    const pv = days.reduce((s, d) => s + d.pv, 0);
+    const durTotal = days.reduce((s, d) => s + d.durTotal, 0);
+    const pages = toRanked(maps.pages).map((p) => ({
+        ...p,
+        avgMs: (durByPath.get(p.name) ?? 0) / p.count,
+    }));
+
     return {
-        days,
+        days: days.map(({ durTotal: _, ...d }) => d),
         totals: {
-            pv: days.reduce((s, d) => s + d.pv, 0),
+            pv,
             visits: days.reduce((s, d) => s + d.visits, 0),
             uv: uvTotal,
             allTimeVisits,
             online,
+            avgMs: pv ? durTotal / pv : 0,
         },
-        pages: toRanked(maps.pages),
+        pages,
         referrers: toRanked(maps.ref),
         countries: toRanked(maps.country),
         devices: toRanked(maps.device),
